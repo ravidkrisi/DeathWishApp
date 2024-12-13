@@ -12,10 +12,14 @@ final class SignUpViewModel: ObservableObject {
     
     @Published var email: String = ""
     @Published var password: String = ""
+    @Published var name: String = ""
     
     func signUp() {
         Task {
-            try await AuthenticationManager.shared.createUser(email: email, password: password)
+            guard let authDataResult = try await AuthenticationManager.shared.createUser(email: email, password: password) else { return }
+            
+            let dbUser = DBUser(id: authDataResult.uid, name: name, email: email)
+            try await UsersManager.shared.addUser(user: dbUser)
         }
     }
 }
@@ -42,6 +46,13 @@ struct SignUpView: View {
 extension SignUpView {
     var signUpForm: some View {
         VStack {
+            TextField("name", text: $vm.name)
+                .padding()
+                .background(.gray.opacity(0.2))
+                .clipShape(
+                    RoundedRectangle(cornerRadius: 10)
+                )
+            
             TextField("email", text: $vm.email)
                 .padding()
                 .background(.gray.opacity(0.2))

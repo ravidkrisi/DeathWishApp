@@ -24,6 +24,8 @@ final class SignInViewModel: ObservableObject {
 
 struct SignInView: View {
     
+    @Binding var showSignInView: Bool
+    
     @StateObject var vm = SignInViewModel()
     
     var body: some View {
@@ -40,7 +42,7 @@ struct SignInView: View {
 
 #Preview {
     NavigationStack {
-        SignInView()
+        SignInView(showSignInView: .constant(true))
     }
 }
 
@@ -63,6 +65,7 @@ extension SignInView {
             
             Button {
                 vm.signIn()
+                showSignInView = false
             } label: {
                 Text("Sign In")
                     .foregroundStyle(.white)
@@ -73,7 +76,10 @@ extension SignInView {
                         RoundedRectangle(cornerRadius: 10)
                     )
             }
-
+            
+            NavigationLink("Sign Up") {
+                SignUpView()
+            }
         }
     }
 }

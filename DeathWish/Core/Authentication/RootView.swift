@@ -14,9 +14,9 @@ struct RootView: View {
     var body: some View {
         ZStack {
             if showSignInView {
-                SignInView()
+                SignInView(showSignInView: $showSignInView)
             } else {
-                Text("hello")
+                HomeView(showSignInView: $showSignInView)
             }
         }
         .onAppear {
@@ -30,5 +30,7 @@ struct RootView: View {
 }
 
 #Preview {
-    RootView()
+    NavigationStack {
+        RootView()
+    }
 }
