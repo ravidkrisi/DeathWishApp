@@ -78,7 +78,7 @@ extension SignInView {
             }
             
             NavigationLink("Sign Up") {
-                SignUpView()
+                SignUpView(showSignInView: $showSignInView)
             }
         }
     }
