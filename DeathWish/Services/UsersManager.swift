@@ -13,12 +13,14 @@ struct DBUser: Codable, Identifiable {
     let name: String?
     let email: String?
     let dateOfBirth: Date?
+    let dateCreated: Date?
     
     init(id: String, name: String?, email: String?, dateOfBirth: Date?) {
         self.id = id
         self.name = name
         self.email = email
         self.dateOfBirth = dateOfBirth
+        self.dateCreated = .now
     }
     
     enum CodingKeys: String, CodingKey {
@@ -26,6 +28,7 @@ struct DBUser: Codable, Identifiable {
         case name
         case email
         case dateOfBirth = "date_of_birth"
+        case dateCreated = "date_created"
     }
     
     init(from decoder: any Decoder) throws {
@@ -34,6 +37,7 @@ struct DBUser: Codable, Identifiable {
         self.name = try container.decodeIfPresent(String.self, forKey: .name)
         self.email = try container.decodeIfPresent(String.self, forKey: .email)
         self.dateOfBirth = try container.decodeIfPresent(Date.self, forKey: .dateOfBirth)
+        self.dateCreated = try container.decodeIfPresent(Date.self, forKey: .dateCreated)
     }
     
     func encode(to encoder: any Encoder) throws {
@@ -42,6 +46,7 @@ struct DBUser: Codable, Identifiable {
         try container.encodeIfPresent(self.name, forKey: .name)
         try container.encodeIfPresent(self.email, forKey: .email)
         try container.encodeIfPresent(self.dateOfBirth, forKey: .dateOfBirth)
+        try container.encodeIfPresent(self.dateCreated, forKey: .dateCreated)
     }
 }
 
