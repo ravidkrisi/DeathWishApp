@@ -14,17 +14,17 @@ final class SignInViewModel: ObservableObject {
     @Published var email: String = ""
     @Published var password: String = ""
     
-    func signIn() {
-        Task {
-            try await AuthenticationManager.shared.signIn(email: email, password: password)
-            print("sign In successfully")
-        }
+    func signIn() async throws -> DBUser? {
+            guard let authResult = try await AuthenticationManager.shared.signIn(email: email, password: password) else { return nil }
+            guard let user = try await UsersManager.shared.getUser(userId: authResult.uid) else { return nil }
+            return user
     }
 }
 
 struct SignInView: View {
     
     @Binding var showSignInView: Bool
+    @Binding var currUser: DBUser?
     
     @StateObject var vm = SignInViewModel()
     
@@ -34,15 +34,12 @@ struct SignInView: View {
         }
         .padding()
         .navigationTitle("Sign In")
-        .onAppear {
-            try? Auth.auth().signOut()
-        }
     }
 }
 
 #Preview {
     NavigationStack {
-        SignInView(showSignInView: .constant(true))
+        SignInView(showSignInView: .constant(true), currUser: .constant(DBUser.example))
     }
 }
 
@@ -64,7 +61,9 @@ extension SignInView {
                 )
             
             Button {
-                vm.signIn()
+                Task {
+                    self.currUser = try await vm.signIn()
+                }
                 showSignInView = false
             } label: {
                 Text("Sign In")
@@ -78,7 +77,7 @@ extension SignInView {
             }
             
             NavigationLink("Sign Up") {
-                SignUpView(showSignInView: $showSignInView)
+                SignUpView(showSignInView: $showSignInView, currUser: $currUser)
             }
         }
     }

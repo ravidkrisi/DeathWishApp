@@ -24,4 +24,8 @@ final class UsersManager {
     func addUser(user: DBUser) async throws {
         try userDoc(userId: user.id).setData(from: user)
     }
+    
+    func getUser(userId: String) async throws -> DBUser? {
+        try await userCollection.document(userId).getDocument(as: DBUser.self)
+    }
 }

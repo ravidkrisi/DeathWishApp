@@ -47,4 +47,6 @@ struct DBUser: Codable, Identifiable {
         try container.encodeIfPresent(self.dateOfBirth, forKey: .dateOfBirth)
         try container.encodeIfPresent(self.dateCreated, forKey: .dateCreated)
     }
+    
+    static let example = DBUser(id: "1234567", name: "example example", email: "example@example.com", dateOfBirth: .now)
 }

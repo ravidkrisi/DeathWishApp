@@ -33,22 +33,23 @@ final class SignUpViewModel: ObservableObject {
     
     @Published var isSignedUp: Bool = false
     
-    func signUp() {
-        Task {
-            guard let authDataResult = try await AuthenticationManager.shared.createUser(email: email, password: password) else { return }
-            
-            let dbUser = DBUser(id: authDataResult.uid, name: name, email: email, dateOfBirth: birthDate)
-            try await UsersManager.shared.addUser(user: dbUser)
-            
-            isSignedUp = true
-            print("created user successfully")
-        }
+    func signUp() async throws -> DBUser? {
+        guard let authDataResult = try await AuthenticationManager.shared.createUser(email: email, password: password) else { return nil }
+        
+        let dbUser = DBUser(id: authDataResult.uid, name: name, email: email, dateOfBirth: birthDate)
+        try await UsersManager.shared.addUser(user: dbUser)
+        
+        isSignedUp = true
+        print("created user successfully")
+        
+        return try await UsersManager.shared.getUser(userId: authDataResult.uid)
     }
 }
 
 struct SignUpView: View {
     
     @Binding var showSignInView: Bool
+    @Binding var currUser: DBUser?
     
     @StateObject var vm = SignUpViewModel()
     
@@ -57,7 +58,7 @@ struct SignUpView: View {
                 signUpForm
             }
             .navigationDestination(isPresented: $vm.isSignedUp, destination: {
-                HomeView(showSignInView: $showSignInView)
+                DashboardView(user: $currUser, showSignInView: $showSignInView)
             })
             .padding()
             .navigationTitle("Sign Up")
@@ -66,7 +67,7 @@ struct SignUpView: View {
 
 #Preview {
     NavigationStack {
-        SignUpView(showSignInView: .constant(true))
+        SignUpView(showSignInView: .constant(true), currUser: .constant(DBUser.example))
     }
 }
 
@@ -108,7 +109,9 @@ extension SignUpView {
                 )
             
             Button {
-                vm.signUp()
+                Task {
+                    self.currUser = try await vm.signUp()
+                }
                 showSignInView = false
             } label: {
                 Text("Sign up")

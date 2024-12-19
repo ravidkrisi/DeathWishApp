@@ -11,19 +11,26 @@ struct RootView: View {
     
     @State private var showSignInView: Bool = false
     
+    @State var currUser: DBUser? = nil
+    
     var body: some View {
         ZStack {
             if showSignInView {
-                SignInView(showSignInView: $showSignInView)
+                SignInView(showSignInView: $showSignInView, currUser: $currUser)
             } else {
-                HomeView(showSignInView: $showSignInView)
+                DashboardView(user: $currUser, showSignInView: $showSignInView)
             }
         }
         .onAppear {
-            if let user = AuthenticationManager.shared.getCurrentUser() {
-                showSignInView = false
-            } else {
-                showSignInView = true
+            Task {
+                if let authResult = AuthenticationManager.shared.getCurrentUser() {
+                    if let user = try await UsersManager.shared.getUser(userId: authResult.uid) {
+                        self.currUser = user
+                        showSignInView = false
+                    }
+                } else {
+                    showSignInView = true
+                }
             }
         }
     }

@@ -7,7 +7,26 @@
 
 import SwiftUI
 
+@MainActor
+final class DashboardViewModel: ObservableObject {
+    
+    @Published var currUser: DBUser? = nil
+    
+    func getCurrUser() {
+        Task {
+            guard let authResult = AuthenticationManager.shared.getCurrentUser() else { return }
+            
+            let userId = authResult.uid
+            guard let user = try await UsersManager.shared.getUser(userId: userId) else { return }
+            self.currUser = user
+        }
+    }
+}
 struct DashboardView: View {
+    
+//    @StateObject var vm = DashboardViewModel()
+    @Binding var user: DBUser?
+    @Binding var showSignInView: Bool
     
     let horizontalPadding: CGFloat = 16
     let spacing: CGFloat = 20
@@ -28,18 +47,29 @@ struct DashboardView: View {
     ]
     
     var body: some View {
-        LazyVGrid(columns: [
-            GridItem(.fixed(itemSize), spacing: spacing),
-            GridItem(.fixed(itemSize), spacing: spacing)
-        ]
-                  , spacing: spacing) {
-            ForEach(items, id: \.self) { title in
-                DashboardItemView(title: title, size: itemSize)
+        VStack {
+            
+            if let user {
+                Text (user.id)
+            }
+            Button("Log Out") {
+                try? AuthenticationManager.shared.signOut()
+                self.user = nil
+                self.showSignInView = true
+            }
+            LazyVGrid(columns: [
+                GridItem(.fixed(itemSize), spacing: spacing),
+                GridItem(.fixed(itemSize), spacing: spacing)
+            ]
+                      , spacing: spacing) {
+                ForEach(items, id: \.self) { title in
+                    DashboardItemView(title: title, size: itemSize)
+                }
             }
         }
     }
 }
 
 #Preview {
-    DashboardView()
+    DashboardView(user: .constant(DBUser.example), showSignInView: .constant(true))
 }

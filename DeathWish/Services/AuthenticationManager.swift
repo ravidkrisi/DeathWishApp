@@ -40,4 +40,8 @@ final class AuthenticationManager {
         guard let user = Auth.auth().currentUser else { return nil }
         return AuthDataResult(user: user)
     }
+    
+    func signOut() throws {
+        try Auth.auth().signOut()
+    }
 }
