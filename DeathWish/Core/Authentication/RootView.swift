@@ -9,7 +9,7 @@ import SwiftUI
 
 struct RootView: View {
     
-    @State private var showSignInView: Bool = false
+    @State private var showSignInView: Bool = true
     
     @State var currUser: DBUser? = nil
     
@@ -18,7 +18,8 @@ struct RootView: View {
             if showSignInView {
                 SignInView(showSignInView: $showSignInView, currUser: $currUser)
             } else {
-                DashboardView(currUser: $currUser, showSignInView: $showSignInView)
+//                DashboardView(currUser: $currUser, showSignInView: $showSignInView)
+                FavoriteSongsView(currUser: $currUser)
             }
         }
         .onAppear {
