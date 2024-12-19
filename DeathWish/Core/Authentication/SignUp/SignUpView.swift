@@ -58,7 +58,7 @@ struct SignUpView: View {
                 signUpForm
             }
             .navigationDestination(isPresented: $vm.isSignedUp, destination: {
-                DashboardView(user: $currUser, showSignInView: $showSignInView)
+                DashboardView(currUser: $currUser, showSignInView: $showSignInView)
             })
             .padding()
             .navigationTitle("Sign Up")

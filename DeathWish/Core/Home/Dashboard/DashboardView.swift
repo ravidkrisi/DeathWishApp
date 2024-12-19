@@ -25,7 +25,7 @@ final class DashboardViewModel: ObservableObject {
 struct DashboardView: View {
     
 //    @StateObject var vm = DashboardViewModel()
-    @Binding var user: DBUser?
+    @Binding var currUser: DBUser?
     @Binding var showSignInView: Bool
     
     let horizontalPadding: CGFloat = 16
@@ -48,13 +48,12 @@ struct DashboardView: View {
     
     var body: some View {
         VStack {
-            
-            if let user {
-                Text (user.id)
+            if let currUser {
+                Text (currUser.id)
             }
             Button("Log Out") {
                 try? AuthenticationManager.shared.signOut()
-                self.user = nil
+                self.currUser = nil
                 self.showSignInView = true
             }
             LazyVGrid(columns: [
@@ -67,9 +66,16 @@ struct DashboardView: View {
                 }
             }
         }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                NavigationLink("add song") {
+                    SongFormView(currUser: $currUser)
+                }
+            }
+        }
     }
 }
 
 #Preview {
-    DashboardView(user: .constant(DBUser.example), showSignInView: .constant(true))
+    DashboardView(currUser: .constant(DBUser.example), showSignInView: .constant(true))
 }

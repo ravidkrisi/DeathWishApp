@@ -18,7 +18,7 @@ struct RootView: View {
             if showSignInView {
                 SignInView(showSignInView: $showSignInView, currUser: $currUser)
             } else {
-                DashboardView(user: $currUser, showSignInView: $showSignInView)
+                DashboardView(currUser: $currUser, showSignInView: $showSignInView)
             }
         }
         .onAppear {
