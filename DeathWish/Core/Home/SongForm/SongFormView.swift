@@ -25,6 +25,8 @@ final class SongFormViewModel: ObservableObject {
 
 struct SongFormView: View {
     
+    @Environment(\.dismiss) var dismiss
+    
     @StateObject var vm = SongFormViewModel()
     
     @Binding var currUser: DBUser?
@@ -40,6 +42,7 @@ struct SongFormView: View {
                 Button("Add") {
                     if let currUser {
                         vm.addSongToFavorites(userId: currUser.id)
+                        dismiss()
                     }
                 }
             }

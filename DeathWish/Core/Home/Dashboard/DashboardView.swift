@@ -7,24 +7,8 @@
 
 import SwiftUI
 
-@MainActor
-final class DashboardViewModel: ObservableObject {
-    
-    @Published var currUser: DBUser? = nil
-    
-    func getCurrUser() {
-        Task {
-            guard let authResult = AuthenticationManager.shared.getCurrentUser() else { return }
-            
-            let userId = authResult.uid
-            guard let user = try await UsersManager.shared.getUser(userId: userId) else { return }
-            self.currUser = user
-        }
-    }
-}
+
 struct DashboardView: View {
-    
-//    @StateObject var vm = DashboardViewModel()
     @Binding var currUser: DBUser?
     @Binding var showSignInView: Bool
     
@@ -38,15 +22,19 @@ struct DashboardView: View {
         return availableSpace / rowNumItems
     }
     
-    let items = [
-        "item1",
-        "item3",
-        "item2",
-        "item4",
-        "item5"
-    ]
-    
     var body: some View {
+        homeGrid
+    }
+}
+
+#Preview {
+    NavigationStack {
+        DashboardView(currUser: .constant(DBUser.example), showSignInView: .constant(true))
+    }
+}
+
+extension DashboardView {
+    var homeGrid: some View {
         VStack {
             if let currUser {
                 Text (currUser.id)
@@ -61,21 +49,13 @@ struct DashboardView: View {
                 GridItem(.fixed(itemSize), spacing: spacing)
             ]
                       , spacing: spacing) {
-                ForEach(items, id: \.self) { title in
-                    DashboardItemView(title: title, size: itemSize)
+                NavigationLink {
+                    FavoriteSongsView(currUser: $currUser)
+                } label: {
+                    DashboardItemView(title: "Favorite Songs", size: itemSize)
                 }
-            }
-        }
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                NavigationLink("add song") {
-                    SongFormView(currUser: $currUser)
-                }
+
             }
         }
     }
-}
-
-#Preview {
-    DashboardView(currUser: .constant(DBUser.example), showSignInView: .constant(true))
 }

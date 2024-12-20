@@ -14,18 +14,15 @@ struct FavoriteSongsView: View {
     @State var songs: [Song] = []
     
     var body: some View {
-        List {
-            Text(currUser?.id ?? "")
-            ForEach(songs) { song in
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text(song.title)
-                        Text(song.artist)
-                    }
+        songsList
+        .navigationTitle("Favorite Songs")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                NavigationLink("Add") {
+                    SongFormView(currUser: $currUser)
                 }
             }
         }
-        .navigationTitle("Favorite Songs")
         .onAppear {
             Task {
                 guard let currUser else { return }
@@ -38,5 +35,20 @@ struct FavoriteSongsView: View {
 #Preview {
     NavigationStack {
         FavoriteSongsView(currUser: .constant(DBUser.example))
+    }
+}
+
+extension FavoriteSongsView {
+    var songsList: some View {
+        List {
+            ForEach(songs) { song in
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text(song.title)
+                        Text(song.artist)
+                    }
+                }
+            }
+        }
     }
 }

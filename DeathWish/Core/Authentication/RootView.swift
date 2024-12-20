@@ -18,8 +18,7 @@ struct RootView: View {
             if showSignInView {
                 SignInView(showSignInView: $showSignInView, currUser: $currUser)
             } else {
-//                DashboardView(currUser: $currUser, showSignInView: $showSignInView)
-                FavoriteSongsView(currUser: $currUser)
+                DashboardView(currUser: $currUser, showSignInView: $showSignInView)
             }
         }
         .onAppear {
