@@ -44,6 +44,16 @@ extension DashboardView {
                 self.currUser = nil
                 self.showSignInView = true
             }
+            
+            Button("test storage") {
+                Task {
+                    guard let user = currUser else { return }
+                    let note = Note(title: "test", body: "testbody")
+                    
+                    try await NotesManager.shared.saveNote(userId: user.id, note: note)
+                    print("saved note to DB and storage")
+                }
+            }
             LazyVGrid(columns: [
                 GridItem(.fixed(itemSize), spacing: spacing),
                 GridItem(.fixed(itemSize), spacing: spacing)
