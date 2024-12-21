@@ -20,9 +20,9 @@ final class NotesManager {
         usersRef.child("\(userId)/notes/\(noteId)_body.txt")
     }
     
-    
+    // SAVE NOTES
     private func saveBodyToStorage(userId: String, note: Note) async throws -> StorageMetadata? {
-        guard let data = note.body.data(using: .utf8) else { return nil }
+        guard let data = note.body?.data(using: .utf8) else { return nil }
         
         let noteRef = getNoteRef(userId: userId, noteId: note.id)
         
@@ -45,4 +45,53 @@ final class NotesManager {
         try await saveNoteToDB(userId: userId, note: note, bodyPath: noteRef.path ?? "")
     }
     
+    // GET NOTES
+    private func downloadBodyNote(bodyPath: String) async throws -> String? {
+        let noteRef = Storage.storage().reference(withPath: bodyPath)
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            noteRef.getData(maxSize: 2 * 1024 * 1024) { data, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else if let data = data {
+                    let bodyNote = String(data: data, encoding: .utf8)
+                    continuation.resume(returning: bodyNote)
+                } else {
+                    continuation.resume(returning: nil)
+                }
+            }
+        }
+    }
+    
+//    private func downloadBodyNote2(bodyPath: String, completion: @escaping (String?) -> Void) {
+//        let noteRef = Storage.storage().reference(withPath: bodyPath)
+//        
+//        noteRef.getData(maxSize: 2 * 1024 * 1024) { data, error in
+//            if let error {
+//                print(error)
+//            } else {
+//                guard let data else { return }
+//                let body = String(data: data, encoding: .utf8)
+//                completion(body)
+//            }
+//        }
+//    }
+    
+    
+    func getNotes(userId: String) async throws -> [Note] {
+        let usersNotesCollection = UsersManager.shared.userDoc(userId: userId).collection("notes")
+        let snapshot = try await usersNotesCollection.getDocuments()
+        
+        var notes: [Note] = []
+        for doc in snapshot.documents {
+            var note = try doc.data(as: Note.self)
+            
+            if let bodyPath = note.bodyPath {
+                note.body = try await downloadBodyNote(bodyPath: bodyPath)
+            }
+            notes.append(note)
+        }
+        
+        return notes
+    }
 }

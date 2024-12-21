@@ -59,12 +59,20 @@ extension DashboardView {
                 GridItem(.fixed(itemSize), spacing: spacing)
             ]
                       , spacing: spacing) {
+                
+                // favorite songs
                 NavigationLink {
                     FavoriteSongsView(currUser: $currUser)
                 } label: {
                     DashboardItemView(title: "Favorite Songs", size: itemSize)
                 }
 
+                // notes
+                NavigationLink {
+                    NotesView(currUser: $currUser)
+                } label: {
+                    DashboardItemView(title: "notes", size: itemSize)
+                }
             }
         }
     }
