@@ -40,6 +40,16 @@ struct NotesView: View {
             }
         }
         .navigationTitle("Notes")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                NavigationLink {
+                    AddNoteView(currUser: $currUser)
+                } label: {
+                    Image(systemName: "plus")
+                }
+
+            }
+        }
         .onAppear {
             guard let currUser else { return }
             vm.getNotes(userId: currUser.id)
@@ -48,5 +58,7 @@ struct NotesView: View {
 }
 
 #Preview {
-    NotesView(currUser: .constant(DBUser.example))
+    NavigationStack {
+        NotesView(currUser: .constant(DBUser.example))
+    }
 }
