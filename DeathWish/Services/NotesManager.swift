@@ -63,20 +63,6 @@ final class NotesManager {
         }
     }
     
-//    private func downloadBodyNote2(bodyPath: String, completion: @escaping (String?) -> Void) {
-//        let noteRef = Storage.storage().reference(withPath: bodyPath)
-//        
-//        noteRef.getData(maxSize: 2 * 1024 * 1024) { data, error in
-//            if let error {
-//                print(error)
-//            } else {
-//                guard let data else { return }
-//                let body = String(data: data, encoding: .utf8)
-//                completion(body)
-//            }
-//        }
-//    }
-    
     
     func getNotes(userId: String) async throws -> [Note] {
         let usersNotesCollection = UsersManager.shared.userDoc(userId: userId).collection("notes")
