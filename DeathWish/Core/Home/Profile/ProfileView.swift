@@ -29,14 +29,9 @@ struct ProfileView: View {
     var body: some View {
         List {
             userDetailsSection
-            
-            Section {
-                Button("Log Out", role: .destructive) {
-                    vm.logout()
-                    showSignInView = true
-                }
-            }
+            functionsSection
         }
+        .navigationTitle("Profile")
     }
 }
 
@@ -48,7 +43,7 @@ struct ProfileView: View {
 
 extension ProfileView {
     var userDetailsSection: some View {
-        Section("user details") {
+        Section("Account details") {
             VStack(alignment: .leading) {
                 Text("Name")
                     .font(.caption)
@@ -71,6 +66,16 @@ extension ProfileView {
                     .foregroundStyle(.secondary)
                 Text(currUser?.dateOfBirth?.formatted(date: .numeric, time: .omitted) ?? "")
                     .font(.headline)
+            }
+        }
+    }
+    
+    var functionsSection: some View {
+        Section {
+            Button("Log Out", role: .destructive) {
+                vm.logout()
+                showSignInView = true
+                currUser = nil
             }
         }
     }
