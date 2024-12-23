@@ -53,7 +53,7 @@ extension SignInView {
                     RoundedRectangle(cornerRadius: 10)
                 )
             
-            TextField("password", text: $vm.password)
+            SecureField("password", text: $vm.password)
                 .padding()
                 .background(.gray.opacity(0.2))
                 .clipShape(
