@@ -36,24 +36,8 @@ struct DashboardView: View {
 extension DashboardView {
     var homeGrid: some View {
         VStack {
-            if let currUser {
-                Text (currUser.id)
-            }
-            Button("Log Out") {
-                try? AuthenticationManager.shared.signOut()
-                self.currUser = nil
-                self.showSignInView = true
-            }
             
-            Button("test storage") {
-                Task {
-                    guard let user = currUser else { return }
-                    let note = Note(title: "test", body: "testbody")
-                    
-                    try await NotesManager.shared.saveNote(userId: user.id, note: note)
-                    print("saved note to DB and storage")
-                }
-            }
+            Text("userid: \(currUser?.id ?? "")")
             LazyVGrid(columns: [
                 GridItem(.fixed(itemSize), spacing: spacing),
                 GridItem(.fixed(itemSize), spacing: spacing)
@@ -72,6 +56,13 @@ extension DashboardView {
                     NotesView(currUser: $currUser)
                 } label: {
                     DashboardItemView(title: "notes", size: itemSize)
+                }
+                
+                // photos
+                NavigationLink {
+                    PhotosView(currUser: $currUser)
+                } label: {
+                    DashboardItemView(title: "photos", size: itemSize)
                 }
             }
         }

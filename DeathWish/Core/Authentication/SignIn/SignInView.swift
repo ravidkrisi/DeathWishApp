@@ -15,8 +15,13 @@ final class SignInViewModel: ObservableObject {
     @Published var password: String = ""
     
     func signIn() async throws -> DBUser? {
-            guard let authResult = try await AuthenticationManager.shared.signIn(email: email, password: password) else { return nil }
-            guard let user = try await UsersManager.shared.getUser(userId: authResult.uid) else { return nil }
+        guard let authResult = try await AuthenticationManager.shared.signIn(email: email, password: password) else {
+            return nil
+        }
+        guard let user = try await UsersManager.shared.getUser(userId: authResult.uid) else {
+            return nil
+        }
+        print("user: \(user.id)")
             return user
     }
 }
@@ -62,7 +67,11 @@ extension SignInView {
             
             Button {
                 Task {
-                    self.currUser = try await vm.signIn()
+                    do {
+                        self.currUser = try await vm.signIn()
+                    } catch {
+                        print(error)
+                    }
                 }
                 showSignInView = false
             } label: {
