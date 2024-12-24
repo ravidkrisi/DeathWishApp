@@ -39,8 +39,30 @@ final class PhotosManager {
     
     private func saveImageToStorage(userId: String, photo: Photo) async throws -> StorageMetadata? {
         let fileRef = Storage.storage().usersRef.child("\(userId)/photos/\(photo.id).jpeg")
-        let data = photo.image
+        guard let data = photo.image else { return nil }
         
         return try await fileRef.putDataAsync(data)
+    }
+    
+    // GET Photos
+    func downloadImage(imagePath: String) async throws -> UIImage? {
+        guard let data = try await  Storage.storage().downloadFile(filePath: imagePath) else { return nil }
+        
+        return UIImage(data: data)
+    }
+    
+    
+    func getPhotos(userId: String) async throws -> [Photo] {
+        let usersNotesCollection = UsersManager.shared.userDoc(userId: userId).collection("photos")
+        let snapshot = try await usersNotesCollection.getDocuments()
+        
+        var photos: [Photo] = []
+        for doc in snapshot.documents {
+            let photo = try doc.data(as: Photo.self)
+            
+            photos.append(photo)
+        }
+        
+        return photos
     }
 }

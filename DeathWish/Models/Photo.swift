@@ -11,10 +11,10 @@ import SwiftUI
 struct Photo: Identifiable, Codable {
     var id = UUID().uuidString
     let caption: String
-    let image: Data
+    let image: Data?
     var imagePath: String?
     
-    init(caption: String, image: Data, imagePath: String? = nil) {
+    init(caption: String, image: Data? = nil, imagePath: String? = nil) {
         self.caption = caption
         self.image = image
         self.imagePath = imagePath
@@ -31,7 +31,7 @@ struct Photo: Identifiable, Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
         self.caption = try container.decode(String.self, forKey: .caption)
-        self.image = try container.decode(Data.self, forKey: .image)
+        self.image = try container.decodeIfPresent(Data.self, forKey: .image)
         self.imagePath = try container.decodeIfPresent(String.self, forKey: .imagePath)
     }
     
@@ -39,7 +39,9 @@ struct Photo: Identifiable, Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(self.id, forKey: .id)
         try container.encode(self.caption, forKey: .caption)
-        try container.encode(self.image, forKey: .image)
-        try container.encode(self.imagePath, forKey: .image)
+        try container.encodeIfPresent(self.image, forKey: .image)
+        try container.encodeIfPresent(self.imagePath, forKey: .image)
     }
+    
+    static let example = Photo(caption: "example", image: Data(), imagePath: "users/3Wln2oZYcDZUpQkZDL7NRZnxZMk1/photos/426EE80D-03BF-4C86-AB6F-2A9365045858.jpeg")
 }
