@@ -47,36 +47,16 @@ final class NotesManager {
     
     // GET NOTES
     private func downloadBodyNote(bodyPath: String) async throws -> String? {
-        let noteRef = Storage.storage().reference(withPath: bodyPath)
+        guard let data = try await Storage.storage().downloadFile(filePath: bodyPath) else { return nil }
         
-        return try await withCheckedThrowingContinuation { continuation in
-            noteRef.getData(maxSize: 2 * 1024 * 1024) { data, error in
-                if let error = error {
-                    continuation.resume(throwing: error)
-                } else if let data = data {
-                    let bodyNote = String(data: data, encoding: .utf8)
-                    continuation.resume(returning: bodyNote)
-                } else {
-                    continuation.resume(returning: nil)
-                }
-            }
-        }
+        return String(data: data, encoding: .utf8)
     }
     
     
     func getNotes(userId: String) async throws -> [Note] {
         let usersNotesCollection = UsersManager.shared.userDoc(userId: userId).collection("notes")
-        let snapshot = try await usersNotesCollection.getDocuments()
         
-        var notes: [Note] = []
-        for doc in snapshot.documents {
-            var note = try doc.data(as: Note.self)
-            
-            if let bodyPath = note.bodyPath {
-                note.body = try await downloadBodyNote(bodyPath: bodyPath)
-            }
-            notes.append(note)
-        }
+        let notes: [Note] = try await Firestore.firestore().getCollectionDocs(collectionRef: usersNotesCollection)
         
         return notes
     }

@@ -9,6 +9,7 @@ import SwiftUI
 
 
 struct DashboardView: View {
+    
     @Binding var currUser: DBUser?
     @Binding var showSignInView: Bool
     
@@ -36,8 +37,6 @@ struct DashboardView: View {
 extension DashboardView {
     var homeGrid: some View {
         VStack {
-            
-            Text("userid: \(currUser?.id ?? "")")
             LazyVGrid(columns: [
                 GridItem(.fixed(itemSize), spacing: spacing),
                 GridItem(.fixed(itemSize), spacing: spacing)
@@ -66,5 +65,6 @@ extension DashboardView {
                 }
             }
         }
+        .frame(maxHeight: .infinity, alignment: .top)
     }
 }

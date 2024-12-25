@@ -53,15 +53,9 @@ final class PhotosManager {
     
     
     func getPhotos(userId: String) async throws -> [Photo] {
-        let usersNotesCollection = UsersManager.shared.userDoc(userId: userId).collection("photos")
-        let snapshot = try await usersNotesCollection.getDocuments()
+        let usersPhotoCollection = UsersManager.shared.userDoc(userId: userId).collection("photos")
         
-        var photos: [Photo] = []
-        for doc in snapshot.documents {
-            let photo = try doc.data(as: Photo.self)
-            
-            photos.append(photo)
-        }
+        let photos: [Photo] = try await Firestore.firestore().getCollectionDocs(collectionRef: usersPhotoCollection)
         
         return photos
     }

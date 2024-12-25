@@ -8,7 +8,6 @@
 import SwiftUI
 import PhotosUI
 
-@MainActor
 final class AddPhotosViewModel: ObservableObject {
     
     @Published var selectedPhoto: PhotosPickerItem? = nil {
@@ -17,7 +16,9 @@ final class AddPhotosViewModel: ObservableObject {
                 if let selectedPhoto,
                    let data = try await selectedPhoto.loadTransferable(type: Data.self),
                    let image = UIImage(data: data) {
-                    self.image = image
+                    await MainActor.run {
+                        self.image = image
+                    }
                 }
             }
         }

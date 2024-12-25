@@ -31,7 +31,6 @@ struct ProfileView: View {
             userDetailsSection
             functionsSection
         }
-        .navigationTitle("Profile")
     }
 }
 

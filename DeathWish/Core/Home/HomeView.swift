@@ -10,20 +10,32 @@ import FirebaseAuth
 
 struct HomeView: View {
     
+    enum Tabs: String {
+        case home = "Home"
+        case profile = "Profile"
+    }
+    
     @Binding var showSignInView: Bool
     @Binding var currUser: DBUser?
    
+    @State private var selectedTab: Tabs = .home
+    
     var body: some View {
-        TabView {
-            Tab("Home", systemImage: "house") {
-                DashboardView(currUser: $currUser, showSignInView: $showSignInView)
+        TabView(selection: $selectedTab) {
+            DashboardView(currUser: $currUser, showSignInView: $showSignInView)
+                .tabItem {
+                    Label("Home", systemImage: "house")
+                }
+                .tag(Tabs.home)
+
+            ProfileView(currUser: $currUser, showSignInView: $showSignInView)
+                .tabItem {
+                    Label("Profile", systemImage: "person")
+                }
+                .tag(Tabs.profile)
             }
-            
-            Tab("Profile", systemImage: "person") {
-                ProfileView(currUser: $currUser, showSignInView: $showSignInView)
-            }
+        .navigationTitle(selectedTab.rawValue)
         }
-    }
 }
 
 #Preview {
