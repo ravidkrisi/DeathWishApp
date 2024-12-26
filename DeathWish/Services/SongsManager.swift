@@ -31,22 +31,9 @@ class SongsManager {
     }
     
     func listenToUsersFavoriteSongs(userId: String, onUpdate: @escaping ([Song]) -> Void) {
-            let musicRef = userMusicDoc(userId: userId)
-            
-            listener = musicRef.addSnapshotListener { snapshot, error in
-                if let error = error {
-                    print("Error listening to songs: \(error)")
-                    return
-                }
-                
-                let songs = snapshot?.documents.compactMap { document in
-                    try? document.data(as: Song.self)
-                } ?? []
-                
-                DispatchQueue.main.async {
-                    onUpdate(songs)
-                }
-            }
+        let musicRef = userMusicDoc(userId: userId)
+        
+        self.listener = Firestore.firestore().listenToCollection(userId: userId, collectionRef: musicRef, onUpdate: onUpdate)
     }
     
     func stopListening() {

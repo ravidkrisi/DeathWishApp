@@ -22,30 +22,20 @@ extension Firestore {
         return array
     }
     
-    func getCollectionDocsRealtime<T: Codable>(
-        collectionRef: CollectionReference,
-        completion: @escaping (Result<[T], Error>) -> Void
-    ) -> ListenerRegistration {
-        let listener = collectionRef.addSnapshotListener { snapshot, error in
-            if let error = error {
-                completion(.failure(error))
-                return
+    func listenToCollection<T: Codable>(userId: String, collectionRef: CollectionReference, onUpdate: @escaping ([T]) -> Void) -> ListenerRegistration {
+        return collectionRef.addSnapshotListener { snapshot, error in
+                if let error = error {
+                    print("Error listening to songs: \(error)")
+                    return
+                }
+                
+                let songs = snapshot?.documents.compactMap { document in
+                    try? document.data(as: T.self)
+                } ?? []
+                
+                DispatchQueue.main.async {
+                    onUpdate(songs)
+                }
             }
-            
-            guard let snapshot = snapshot else {
-                completion(.failure(NSError(domain: "Firestore", code: -1, userInfo: [NSLocalizedDescriptionKey: "No snapshot found."])))
-                return
-            }
-            
-            do {
-                let array = try snapshot.documents.map { try $0.data(as: T.self) }
-                completion(.success(array))
-            } catch {
-                completion(.failure(error))
-            }
-        }
-        
-        return listener
     }
-
 }
