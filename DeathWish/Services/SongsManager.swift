@@ -13,6 +13,8 @@ class SongsManager {
     static let shared = SongsManager()
     private init() { }
     
+    private var listener: ListenerRegistration? = nil
+    
     private func userMusicDoc(userId: String) -> CollectionReference {
         UsersManager.shared.userDoc(userId: userId).collection("favorite_music")
     }
@@ -22,13 +24,33 @@ class SongsManager {
     }
     
     func getUsersFavoriteSongs(userId: String) async throws -> [Song] {
-        let querySnapshot = try await userMusicDoc(userId: userId).getDocuments()
+        let musicRef = userMusicDoc(userId: userId)
         
-        var songs: [Song] = []
-        for doc in querySnapshot.documents {
-            let song = try doc.data(as: Song.self)
-            songs.append(song)
-        }
+        let songs: [Song] = try await Firestore.firestore().getCollectionDocs(collectionRef: musicRef)
         return songs
+    }
+    
+    func listenToUsersFavoriteSongs(userId: String, onUpdate: @escaping ([Song]) -> Void) {
+            let musicRef = userMusicDoc(userId: userId)
+            
+            listener = musicRef.addSnapshotListener { snapshot, error in
+                if let error = error {
+                    print("Error listening to songs: \(error)")
+                    return
+                }
+                
+                let songs = snapshot?.documents.compactMap { document in
+                    try? document.data(as: Song.self)
+                } ?? []
+                
+                DispatchQueue.main.async {
+                    onUpdate(songs)
+                }
+            }
+    }
+    
+    func stopListening() {
+            listener?.remove()
+            listener = nil
     }
 }

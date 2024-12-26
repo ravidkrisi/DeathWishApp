@@ -6,12 +6,21 @@
 //
 
 import SwiftUI
+final class FavoriteSongsViewModel: ObservableObject {
+    @Published var songs: [Song] = []
+    
+    func startListen(userId: String) {
+        SongsManager.shared.listenToUsersFavoriteSongs(userId: userId) { [weak self] UpdatedSongs in
+            self?.songs = UpdatedSongs
+        }
+    }
+}
 
 struct FavoriteSongsView: View {
     
     @Binding var currUser: DBUser?
     
-    @State var songs: [Song] = []
+    @StateObject var vm = FavoriteSongsViewModel()
     
     var body: some View {
         songsList
@@ -24,10 +33,8 @@ struct FavoriteSongsView: View {
             }
         }
         .onAppear {
-            Task {
-                guard let currUser else { return }
-                self.songs = try await SongsManager.shared.getUsersFavoriteSongs(userId: currUser.id)
-            }
+            guard let userId = currUser?.id else { return }
+            vm.startListen(userId: userId)
         }
     }
 }
@@ -41,7 +48,7 @@ struct FavoriteSongsView: View {
 extension FavoriteSongsView {
     var songsList: some View {
         List {
-            ForEach(songs) { song in
+            ForEach(vm.songs) { song in
                 HStack {
                     VStack(alignment: .leading) {
                         Text(song.title)

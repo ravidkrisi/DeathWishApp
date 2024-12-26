@@ -46,7 +46,7 @@ final class NotesManager {
     }
     
     // GET NOTES
-    private func downloadBodyNote(bodyPath: String) async throws -> String? {
+    func downloadBodyNote(bodyPath: String) async throws -> String? {
         guard let data = try await Storage.storage().downloadFile(filePath: bodyPath) else { return nil }
         
         return String(data: data, encoding: .utf8)
