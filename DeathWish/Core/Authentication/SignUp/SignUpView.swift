@@ -6,8 +6,8 @@
 //
 
 import SwiftUI
+import PhotosUI
 
-@MainActor
 final class SignUpViewModel: ObservableObject {
     
     @Published var email: String = "" {
@@ -21,6 +21,21 @@ final class SignUpViewModel: ObservableObject {
     
     @Published var isEmailValid: Bool = false
     @Published var isPasswordValid: Bool = false
+    
+    @Published var profileImage: UIImage? = nil
+    @Published var selectedPhoto: PhotosPickerItem? = nil {
+        didSet {
+            Task {
+                if let selectedPhoto,
+                   let data = try await selectedPhoto.loadTransferable(type: Data.self),
+                   let image = UIImage(data: data) {
+                    await MainActor.run {
+                        self.profileImage = image
+                    }
+                }
+            }
+        }
+    }
     
     private func validateEmail() {
         let emailRegex = "^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
@@ -36,7 +51,9 @@ final class SignUpViewModel: ObservableObject {
     func signUp() async throws -> DBUser? {
         guard let authDataResult = try await AuthenticationManager.shared.createUser(email: email, password: password) else { return nil }
         
-        let dbUser = DBUser(id: authDataResult.uid, name: name, email: email, dateOfBirth: birthDate)
+        guard let imageData = profileImage?.jpegData(compressionQuality: 1) else { return nil }
+        let profilePicPath = try await PhotosManager.shared.saveProfilePic(userId: authDataResult.uid, image: imageData)
+        let dbUser = DBUser(id: authDataResult.uid, name: name, email: email, dateOfBirth: birthDate, profilePicPath: profilePicPath)
         try await UsersManager.shared.addUser(user: dbUser)
         
         isSignedUp = true
@@ -74,6 +91,24 @@ struct SignUpView: View {
 extension SignUpView {
     var signUpForm: some View {
         VStack {
+            // profile image
+            PhotosPicker(selection: $vm.selectedPhoto, matching: .images) {
+                if let image = vm.profileImage {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 120, height: 120)
+                        .clipShape(.circle)
+                } else {
+                    Text("Profile Picture")
+                        .frame(width: 120, height: 120)
+                        .background(
+                            Circle()
+                                .fill(Color.gray.opacity(0.2))
+                        )
+                }
+            }
+            
             // name
             TextField("name", text: $vm.name)
                 .textInputAutocapitalization(.never)

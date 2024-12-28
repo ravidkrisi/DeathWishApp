@@ -23,7 +23,7 @@ final class AddPhotosViewModel: ObservableObject {
             }
         }
     }
-    @Published var image: UIImage?
+    @Published var image: UIImage? = nil
     @Published var caption: String = ""
     
     func savePhoto(userId: String) {

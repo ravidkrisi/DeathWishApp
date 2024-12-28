@@ -68,12 +68,13 @@ extension SignInView {
             Button {
                 Task {
                     do {
-                        self.currUser = try await vm.signIn()
+                        guard let signInResult = try await vm.signIn() else { return }
+                        self.currUser = signInResult
+                        showSignInView = false
                     } catch {
                         print(error)
                     }
                 }
-                showSignInView = false
             } label: {
                 Text("Sign In")
                     .foregroundStyle(.white)

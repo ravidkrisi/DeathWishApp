@@ -25,6 +25,12 @@ final class PhotosManager {
         
     }
     
+    func saveProfilePic(userId: String, image: Data) async throws -> String? {
+        let fileRef = Storage.storage().usersRef.child("\(userId)/profile_pic/profile_pic.jpeg")
+        let metadata = try await fileRef.putDataAsync(image)
+        return metadata.path
+    }
+    
     private func savePhotoToDB(userId: String, photo: Photo, photoPath: String) async throws {
         let userPhotosCollection = UsersManager.shared.userDoc(userId: userId).collection("photos")
         
